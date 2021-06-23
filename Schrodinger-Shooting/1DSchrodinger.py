@@ -1,6 +1,7 @@
-                                        #solving the 1D Schrodinger Equation using the Shooting method and Numerov's algorithm
+#solving the 1D Schrodinger Equation using the Shooting method and Numerov's algorithm
 
 import math
+import numpy as np
 
 global eps
 global q0
@@ -11,7 +12,7 @@ global ee
 global h2
 global h12
 
-eps = 10**-6
+eps = math.pow(10, -6)
 
 
 def potential(x): #calculates the potential as a function of x. 
@@ -34,7 +35,7 @@ def potential(x): #calculates the potential as a function of x.
     #simple harmonic oscillator potential
 
 
-def normalize(nx, h, psi =[]):
+def normalize(nx, numOfPoints, h, psi):
     
     global eps
     global q0
@@ -46,16 +47,19 @@ def normalize(nx, h, psi =[]):
     global h12
     
 
-    norm = (psi[0]**2) + (psi[(2*nx)-1]**2)
+    norm = math.pow(psi[0], 2) + math.pow(psi[numOfPoints-1], 2)
 
-    for i in range(-nx+1, nx-2, 2):
-        norm = norm + 4 * psi[i+(nx-1)]**2 + 2 * psi[i+nx]**2
+    for i in range(1, len(psi)-3, 2):
 
-    norm  = norm + 4 * psi[(2*nx)-2]**2
-    norm = 1/math.sqrt(norm*h/3)
+        norm = norm + 4.0 * math.pow(psi[i], 2) +2.0 * math.pow(psi[i+1], 2)
 
-    for i in range(-nx, nx+1):
-        psi[i+(nx-1)] = psi[i+(nx-1)] * norm
+    norm = norm + 4.0 * math.pow(psi[numOfPoints-2], 2)
+
+    norm = 1.0/math.sqrt(norm*h/3.0)
+
+    for i in range(len(psi)):
+
+        psi[i] = psi[i] * norm
 
 
 #integrates one step using Numerov's method. 
@@ -72,10 +76,11 @@ def numerovstep(x):
 
     q2 = h2 * f1 * p1 + 2.0 * q1 - q0
 
-    q0 = q1
-    q1 = q2
-    f1 = 2*(potential(x) - ee)
-    p1 = q1/(1 - h12 * f1)
+    q0 = q1; q1 = q2
+
+    f1 = 2.0*(potential(x)-ee)
+
+    p1 = q1/(1.0 -h12 * f1)
 
 
 def setinitcond(xmax, h, psi0, psi1): #sets the initial boundary conditions
@@ -90,16 +95,16 @@ def setinitcond(xmax, h, psi0, psi1): #sets the initial boundary conditions
     global h12
 
     psi0 = 0.0
-    psi1 = 0.0001
+    psi1 = 0.00010
 
     p1 = psi0
-    f1 = 2.0 * (potential(-xmax) -ee)
-    q0 = psi0 * (1 - h12 * f1)
-    f1 = 2.0 * (potential(-xmax + h) - ee)
-    q1 = psi1 *  (1 - h12 * f1)
+    f1 = 2.0  * (potential(-xmax)-ee)        
+    q0 = psi0 * (1.0 - h12 * f1)
+    f1 = 2.0  * (potential(-xmax+h)-ee)        
+    q1 = psi1 * (1.0 - h12 * f1)
 
 
-def integrate(xmax, nx, e1, psi = []): #runs the integration
+def integrate(xmax, nx, numOfPoints, e1, psi): #runs the integration
     
     global eps
     global q0
@@ -110,24 +115,29 @@ def integrate(xmax, nx, e1, psi = []): #runs the integration
     global h2
     global h12
 
-    #print("psi = ",psi)
 
     ee = e1
+
     h = xmax/nx
-    h2 = h**2
+
+    h2 = math.pow(h, 2)
+
     h12 = h2/12.0
 
     setinitcond(xmax, h, psi[0], psi[1]) 
 
-    for i in range(-nx+2, nx+1):
+    for i in range(2, len(psi)):
         
         x = i  * h
+
         numerovstep(x)
-        psi[i+(nx-1)] = p1
+
+        psi[i] = p1
+
         #print(i)
 
     
-    normalize(nx, h, psi)
+    normalize(nx,numOfPoints, h, psi)
    
 
 
@@ -156,32 +166,30 @@ def main():
     xmax = float(input("Enter the maximum value of x: ")) 
     nx = int(input("Enter the numbe of points either side of 0: "))
     e1 = float(input("Searching of E>E0, give E0: "))
-    de = float(input("Delta-E in initial course search: "))
+    delta_E = float(input("Delta-E in initial course search: "))
 
 
-    psi =[] * (2*nx) #each index of psi has to be  shifted  by nx
-    
-    for i in range(-nx, nx+1): #initialize psi
+    numOfPoints = 2 * nx
 
-        psi.append(0.0)
+    psi = np.empty(numOfPoints)
     
 
     #starting course search
     ni = 0
     print("starting course search")
-    integrate(xmax, nx, e1, psi)
-    b1 = psi[(2*nx)-1]
+    integrate(xmax, nx, numOfPoints, e1, psi)
+    b1 = psi[numOfPoints-1]
     writemessage(ni, e1, b1)
 
 
     while True:
         ni += 1
 
-        e2 = e1 + de
+        e2 = e1 + delta_E
 
-        integrate(xmax, nx, e2, psi)
+        integrate(xmax, nx, numOfPoints, e2, psi)
 
-        b2 = psi[(2*nx)-1]
+        b2 = psi[numOfPoints-1]
 
         writemessage(ni, e2, b2)
         #print(b1)
@@ -201,16 +209,19 @@ def main():
         ni += 1
         e0 = (e1 + e2)/2.0
 
-        integrate(xmax, nx, e2, psi)
-        b2 = psi[nx+nx-1]
+        integrate(xmax, nx, numOfPoints, e2, psi)
+
+        b0 = psi[numOfPoints-1]
 
         writemessage(ni, e0, b0)
+
         if(abs(b0) <= eps): break
 
         if(b0 * b1 <= 0.0):
             
             e2 = e0
             b2 = b0
+
         else:
 
             e1 = e0
@@ -223,9 +234,11 @@ def main():
     #    j+=1
 
     output = open("myPsi.dat", "w")
-    for i in range(-nx, nx+1):
+    print(len(psi))
+
+    for i in range(len(psi)):
         
-        output.write(str((i*xmax)/nx)+'      '+ str(psi[i+nx])+"\n")
+        output.write(str((i-nx)*xmax/nx)+'      '+ str(psi[i])+"\n")
 
     output.close()
             

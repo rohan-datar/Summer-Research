@@ -31,30 +31,45 @@
      allocate(psi(-nx:nx))
     
      ni=0
+
      write(*,*)'Starting course search'
      call integrate(xmax,nx,e1,psi)
      b1=psi(nx)
      call writemessage(ni,e1,b1) 
+
      do 
        ni=ni+1
+
        e2=e1+de
+
        call integrate(xmax,nx,e2,psi)
+
        b2=psi(nx)
+
        call writemessage(ni,e2,b2) 
+
        if (b1*b2 < 0.d0) exit
        e1=e2
        b1=b2
      enddo
     
      ni=0
+
      write(*,*)'Starting bisection'
+
      do
        ni=ni+1
+
        e0=(e1+e2)/2.0d0
+
        call integrate(xmax,nx,e0,psi)
+
        b0=psi(nx)
+
        call writemessage(ni,e0,b0) 
+
        if (abs(b0) <= eps) exit
+
        if (b0*b1 <= 0.0d0) then
          e2=e0      
          b2=b0 
@@ -65,9 +80,13 @@
      enddo
     
      open(1,file='psi.dat',status='replace')
+
      do i=-nx,nx
+  
        write(1,*)dble(i)*xmax/dble(nx),psi(i)
+
      enddo
+
      close(1)
     
      end program schrodinger1d
@@ -79,24 +98,34 @@
      implicit none
     
      real(8) :: q0,q1,p1,f1,ee,h2,h12
+
      common/block1/q0,q1,p1,f1,ee,h2,h12
     
      integer :: i,n,nx
+
      real(8) :: psi(-nx:nx),xmax,x,h,de,e1
      
-    ! write(*,*)"psi ="
-    ! write(*,*)psi
      
      ee=e1
-     h=xmax/dble(nx)      
+
+     h=xmax/dble(nx) 
+
      h2=h**2
+
      h12=h2/12.d0
-     call setinitcond(xmax,h,psi(-nx),psi(-nx+1))
+
+     call setinitcond(xmax, h , psi(-nx) ,psi(-nx+1))
+
      do i=-nx+2,nx
+
        x=dble(i)*h
+
        call numerovstep(x)
+
        psi(i)=p1
+
      end do 
+
      call normalize(psi,nx,h)
     
      end subroutine integrate 
@@ -194,14 +223,21 @@
      
      
      norm=psi(-nx)**2+psi(nx)**2
+
      do i=-nx+1,nx-3,2
+
        norm=norm+4.d0*psi(i)**2+2.d0*psi(i+1)**2
+
      end do
 
      norm=norm+4.d0*psi(nx-1)**2
+
      norm=1.d0/sqrt(norm*h/3.d0)
+
      do i=-nx,nx
+
        psi(i)=psi(i)*norm
+       
      end do
     
      end subroutine normalize
