@@ -12,7 +12,7 @@ global ee
 global h2
 global h12
 
-eps = math.pow(10, -6)
+eps = math.pow(10, -4)
 
 
 def potential(x): #calculates the potential as a function of x. 
@@ -35,7 +35,7 @@ def potential(x): #calculates the potential as a function of x.
     #simple harmonic oscillator potential
 
 
-def normalize(nx, numOfPoints, h, psi):
+def normalize(nx, h, psi):
     
     global eps
     global q0
@@ -47,13 +47,13 @@ def normalize(nx, numOfPoints, h, psi):
     global h12
     
 
-    norm = math.pow(psi[0], 2) + math.pow(psi[numOfPoints-1], 2)
+    norm = math.pow(psi[0], 2) + math.pow(psi[-1], 2)
 
     for i in range(1, len(psi)-3, 2):
 
         norm = norm + 4.0 * math.pow(psi[i], 2) +2.0 * math.pow(psi[i+1], 2)
 
-    norm = norm + 4.0 * math.pow(psi[numOfPoints-2], 2)
+    norm = norm + 4.0 * math.pow(psi[-2], 2)
 
     norm = 1.0/math.sqrt(norm*h/3.0)
 
@@ -80,7 +80,7 @@ def numerovstep(x):
 
     f1 = 2.0*(potential(x)-ee)
 
-    p1 = q1/(1.0 -h12 * f1)
+    p1 = q1/(1.0 - h12 * f1)
 
 
 def setinitcond(xmax, h, psi0, psi1): #sets the initial boundary conditions
@@ -103,8 +103,10 @@ def setinitcond(xmax, h, psi0, psi1): #sets the initial boundary conditions
     f1 = 2.0  * (potential(-xmax+h)-ee)        
     q1 = psi1 * (1.0 - h12 * f1)
 
+    return psi0, psi1
 
-def integrate(xmax, nx, numOfPoints, e1, psi): #runs the integration
+
+def integrate(xmax, nx, e1, psi): #runs the integration
     
     global eps
     global q0
@@ -124,11 +126,11 @@ def integrate(xmax, nx, numOfPoints, e1, psi): #runs the integration
 
     h12 = h2/12.0
 
-    setinitcond(xmax, h, psi[0], psi[1]) 
+    psi[0], psi[1] = setinitcond(xmax, h, psi[0], psi[1]) 
 
     for i in range(2, len(psi)):
         
-        x = i  * h
+        x = (i-nx)  * h
 
         numerovstep(x)
 
@@ -136,9 +138,13 @@ def integrate(xmax, nx, numOfPoints, e1, psi): #runs the integration
 
         #print(i)
 
-    
-    normalize(nx,numOfPoints, h, psi)
-   
+    #print('before normalization  ')
+    #for i in psi:
+    #    print('%.15f'%i)
+    normalize(nx, h, psi)
+    #print('after normalization  ')
+    #for i in psi:
+    #    print('%.15f'%i)
 
 
 def writemessage(n, e, b):
@@ -169,30 +175,29 @@ def main():
     delta_E = float(input("Delta-E in initial course search: "))
 
 
-    numOfPoints = 2 * nx
 
-    psi = np.empty(numOfPoints)
+    psi = np.empty((2 * nx)+1)
     
 
     #starting course search
     ni = 0
     print("starting course search")
-    integrate(xmax, nx, numOfPoints, e1, psi)
-    b1 = psi[numOfPoints-1]
+    integrate(xmax, nx, e1, psi)
+    b1 = psi[-1]
     writemessage(ni, e1, b1)
 
-
+    
     while True:
         ni += 1
 
         e2 = e1 + delta_E
 
-        integrate(xmax, nx, numOfPoints, e2, psi)
+        integrate(xmax, nx, e2, psi)
 
-        b2 = psi[numOfPoints-1]
+        b2 = psi[-1]
 
         writemessage(ni, e2, b2)
-        #print(b1)
+        
 
         if(b1 * b2 < 0.0 ): break
 
@@ -201,21 +206,25 @@ def main():
         b1 = b2
 
     ni = 0
-
+    
     print("starting bisection")
-
+    
+    #print(psi[-1])
     while True:
 
         ni += 1
         e0 = (e1 + e2)/2.0
 
-        integrate(xmax, nx, numOfPoints, e2, psi)
+        integrate(xmax, nx, e0, psi)
 
-        b0 = psi[numOfPoints-1]
+        b0 = psi[-1]
+        
 
         writemessage(ni, e0, b0)
 
         if(abs(b0) <= eps): break
+
+        
 
         if(b0 * b1 <= 0.0):
             
@@ -227,14 +236,9 @@ def main():
             e1 = e0
             b1 = b0
 
-    #j =0
-    #while True:
-    #    print(j)
-    #    print(psi[j])
-    #    j+=1
-
+    
     output = open("myPsi.dat", "w")
-    print(len(psi))
+
 
     for i in range(len(psi)):
         

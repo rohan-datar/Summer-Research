@@ -12,7 +12,7 @@
     !---------------------!
      implicit none
     
-     real(8), parameter :: eps=1.d-6
+     real(8), parameter :: eps=1.d-4
     
      integer :: i,ni,nx
      real(8) :: xmax,de,b0,b1,b2,e0,e1,e2
@@ -125,8 +125,12 @@
        psi(i)=p1
 
      end do 
-
+     
+     !write(*,*) "before normalization"
+     !write(*,*) psi
      call normalize(psi,nx,h)
+     !write(*,*) "after normalization"
+     !write(*,*) psi
     
      end subroutine integrate 
     !------------------------!
