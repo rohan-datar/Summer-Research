@@ -12,7 +12,7 @@
     !---------------------!
      implicit none
     
-     real(8), parameter :: eps=1.d-4
+     real(8), parameter :: eps=1.d-6
     
      integer :: i,ni,nx
      real(8) :: xmax,de,b0,b1,b2,e0,e1,e2

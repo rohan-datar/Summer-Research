@@ -12,7 +12,7 @@ global ee
 global h2
 global h12
 
-eps = math.pow(10, -6)
+eps = math.pow(10, -4)
 
 
 def potential(x): #calculates the potential as a function of x. 
@@ -170,10 +170,9 @@ def main():
     b2 = 0.0
 
     xmax = float(input("Enter the maximum value of x: ")) 
-    nx = int(input("Enter the number of points either side of 0: "))
+    nx = int(input("Enter the numbe of points either side of 0: "))
     e1 = float(input("Searching of E>E0, give E0: "))
     delta_E = float(input("Delta-E in initial course search: "))
-    eps = float(input("enter boundary convergence parameter"))
 
 
 
