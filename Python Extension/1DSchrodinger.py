@@ -3,7 +3,7 @@
 import math
 import numpy as np
 
-global eps
+
 global q0
 global q1
 global p1
@@ -12,7 +12,6 @@ global ee
 global h2
 global h12
 
-eps = math.pow(10, -6)
 
 
 def potential(x): #calculates the potential as a function of x. 
@@ -36,16 +35,7 @@ def potential(x): #calculates the potential as a function of x.
 
 
 def normalize(nx, h, psi):
-    
-    global eps
-    global q0
-    global q1
-    global p1
-    global f1
-    global ee
-    global h2
-    global h12
-    
+       
 
     norm = math.pow(psi[0], 2) + math.pow(psi[-1], 2)
 
@@ -85,7 +75,7 @@ def numerovstep(x):
 
 def setinitcond(xmax, h, psi0, psi1): #sets the initial boundary conditions
 
-    global eps
+   
     global q0
     global q1
     global p1
@@ -136,16 +126,11 @@ def integrate(xmax, nx, e1, psi): #runs the integration
 
         psi[i] = p1
 
-        #print(i)
+       
 
-    #print('before normalization  ')
-    #for i in psi:
-    #    print('%.15f'%i)
+    
     normalize(nx, h, psi)
-    #print('after normalization  ')
-    #for i in psi:
-    #    print('%.15f'%i)
-
+    
 
 def writemessage(n, e, b):
     
@@ -155,19 +140,15 @@ def writemessage(n, e, b):
 def main():
     
    #variable initialization
-    global eps
-    global q0
-    global q1
-    global p1
-    global f1
-    global ee
-    global h2
-    global h12
+    
+   
     e0 = 0.0
     e1 = 0.0
     e2 = 0.0
     b0 = 0.0
     b2 = 0.0
+    eps = math.pow(10, -6)
+
 
     xmax = float(input("Enter the maximum value of x: ")) 
     nx = int(input("Enter the number of points either side of 0: "))
