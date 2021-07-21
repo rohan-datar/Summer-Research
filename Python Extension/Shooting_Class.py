@@ -130,12 +130,12 @@ class Integrator:
         
         self.normalize(h)
         
-    '''
+    
     def writemessage(n, e, b):
-        
+
         print(n,"  E =", e, "Boundary deviation " , b)
         
-    '''
+    
     
     def findWavefunction(self):
 
@@ -160,19 +160,19 @@ class Integrator:
         print("starting course search")
         self.integrate(self.e1)
         b1 = self.psi[-1]
-        #writemessage(ni, e1, b1)
+        #self.writemessage(ni, self.e1, b1)
 
     
         while True:
             ni += 1
 
-            e2 = e1 + self.delta_E
+            e2 = self.e1 + self.delta_E
 
-            self.integrate( e2,)
+            self.integrate(e2)
 
             b2 = self.psi[-1]
 
-            #writemessage(ni, e2, b2)
+            self.writemessage(ni, e2, b2)
         
 
             if(b1 * b2 < 0.0 ): break
@@ -196,9 +196,9 @@ class Integrator:
             b0 = self.psi[-1]
         
 
-            #writemessage(ni, e0, b0)
+            self.writemessage(ni, e0, b0)
 
-            if(abs(b0) <= eps): break
+            if(abs(b0) <= self.eps): break
 
         
 
@@ -209,7 +209,7 @@ class Integrator:
 
             else:
 
-                e1 = e0
+                self.e1 = e0
                 b1 = b0
 
     

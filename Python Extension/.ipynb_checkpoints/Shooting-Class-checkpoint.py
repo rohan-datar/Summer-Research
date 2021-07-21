@@ -166,9 +166,9 @@ class Integrator:
         while True:
             ni += 1
 
-            e2 = e1 + self.delta_E
+            e2 = self.e1 + self.delta_E
 
-            self.integrate( e2,)
+            self.integrate(e2)
 
             b2 = self.psi[-1]
 
@@ -198,7 +198,7 @@ class Integrator:
 
             #writemessage(ni, e0, b0)
 
-            if(abs(b0) <= eps): break
+            if(abs(b0) <= self.eps): break
 
         
 
@@ -209,7 +209,7 @@ class Integrator:
 
             else:
 
-                e1 = e0
+                self.e1 = e0
                 b1 = b0
 
     
