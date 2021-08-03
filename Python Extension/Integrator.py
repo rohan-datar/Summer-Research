@@ -2,6 +2,7 @@ class Integrator:
     
     import math
     import numpy as np
+    import Particle as p
 
 
     #initializing shared variables
@@ -56,7 +57,9 @@ class Integrator:
         #else:
         #    return 0.0
 
-    #simple harmonic oscillator potential
+        #simple harmonic oscillator potential
+
+
     def normalize(self, h):
         
 
@@ -117,7 +120,7 @@ class Integrator:
 
         self.setinitcond(h) 
 
-        for i in range(2, len(self.psi)):
+        for i in range(2, int(len(self.psi)/2)):
             
             x = (i-self.nx)  * h
 
@@ -125,13 +128,15 @@ class Integrator:
 
             self.psi[i] = self.p1
 
+            self.psi[len(self.psi)-i] = self.psi[i]
+
         
 
         
         self.normalize(h)
         
     
-    def writemessage(n, e, b):
+    def writemessage(self, n, e, b):
 
         print(n,"  E =", e, "Boundary deviation " , b)
         
@@ -157,7 +162,7 @@ class Integrator:
 
         #starting course search
         ni = 0
-        print("starting course search")
+        #print("starting course search")
         self.integrate(self.e1)
         b1 = self.psi[-1]
         #self.writemessage(ni, self.e1, b1)
@@ -172,31 +177,31 @@ class Integrator:
 
             b2 = self.psi[-1]
 
-            self.writemessage(ni, e2, b2)
+            #self.writemessage(ni, e2, b2)
         
 
             if(b1 * b2 < 0.0 ): break
 
 
-            e1 = e2
+            self.e1 = e2
             b1 = b2
 
         ni = 0
     
-        print("starting bisection")
+        #print("starting bisection")
     
         
         while True:
 
             ni += 1
-            e0 = (e1 + e2)/2.0
+            e0 = (self.e1 + e2)/2.0
 
             self.integrate(e0)
 
             b0 = self.psi[-1]
         
 
-            self.writemessage(ni, e0, b0)
+            #self.writemessage(ni, e0, b0)
 
             if(abs(b0) <= self.eps): break
 
@@ -212,7 +217,9 @@ class Integrator:
                 self.e1 = e0
                 b1 = b0
 
-    
+
+
+        '''
         output = open("Psi.dat", "w")
 
 
@@ -221,3 +228,21 @@ class Integrator:
             output.write(str((i-self.nx)*self.xmax/self.nx)+'      '+ str(self.psi[i])+"\n")
 
         output.close()
+        '''
+
+        output = self.p.Particle(e0, self.psi)
+
+        return output
+
+
+'''
+For SHO and square well, find even parity solutions find the center point 
+at x=0 and then check if the derivative is zero. then reflect the 
+function around the origin. You can check the derivative around 0 using 
+the difference method.
+
+For Odd parity solutions check psi itself it should be 0 at x = 0
+
+After changing the potential, pretty much everything else can stay the 
+same, setinitcond will work for a SHO with sufficiently large xmax
+'''
