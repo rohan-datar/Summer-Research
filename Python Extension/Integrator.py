@@ -120,7 +120,7 @@ class Integrator:
 
         self.setinitcond(h) 
 
-        for i in range(2, int(len(self.psi)/2)):
+        for i in range(2, len(self.psi)):
             
             x = (i-self.nx)  * h
 
@@ -128,7 +128,7 @@ class Integrator:
 
             self.psi[i] = self.p1
 
-            self.psi[len(self.psi)-i] = self.psi[i]
+            
 
         
 
