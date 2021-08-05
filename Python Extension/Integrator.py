@@ -112,28 +112,28 @@ class Integrator:
 
         self.ee = e1
 
-        h = self.xmax/self.nx
+        self.h = self.xmax/self.nx
 
-        self.h2 = self.math.pow(h, 2)
+        self.h2 = self.math.pow(self.h, 2)
 
         self.h12 = self.h2/12.0
 
-        self.setinitcond(h) 
+        self.setinitcond(self.h) 
 
-        for i in range(2, int(len(self.psi)/2)):
+        for i in range(2, self.nx+1):
             
-            x = (i-self.nx)  * h
+            x = (i-self.nx)  * self.h
 
             self.numerovstep(x)
 
             self.psi[i] = self.p1
 
-            self.psi[len(self.psi)-i] = self.psi[i]
+            #self.psi[len(self.psi)-i] = self.psi[i]
 
         
 
         
-        self.normalize(h)
+        self.normalize(self.h)
         
     
     def writemessage(self, n, e, b):
@@ -158,14 +158,16 @@ class Integrator:
         '''
 
         self.psi = self.np.empty((2 * self.nx)+1)
+
+
     
 
         #starting course search
         ni = 0
-        #print("starting course search")
+        print("starting course search")
         self.integrate(self.e1)
-        b1 = self.psi[-1]
-        #self.writemessage(ni, self.e1, b1)
+        b1 = (self.psi[self.nx+1]-self.psi[self.nx-1])/(2*self.h)
+        self.writemessage(ni, self.e1, b1)
 
     
         while True:
@@ -175,9 +177,9 @@ class Integrator:
 
             self.integrate(e2)
 
-            b2 = self.psi[-1]
+            b2 = (self.psi[self.nx+1]-self.psi[self.nx-1])/(2*self.h)
 
-            #self.writemessage(ni, e2, b2)
+            self.writemessage(ni, e2, b2)
         
 
             if(b1 * b2 < 0.0 ): break
@@ -188,7 +190,7 @@ class Integrator:
 
         ni = 0
     
-        #print("starting bisection")
+        print("starting bisection")
     
         
         while True:
@@ -198,10 +200,10 @@ class Integrator:
 
             self.integrate(e0)
 
-            b0 = self.psi[-1]
+            b0 = (self.psi[self.nx+1]-self.psi[self.nx-1])/(2*self.h)
         
 
-            #self.writemessage(ni, e0, b0)
+            self.writemessage(ni, e0, b0)
 
             if(abs(b0) <= self.eps): break
 
@@ -229,6 +231,11 @@ class Integrator:
 
         output.close()
         '''
+
+
+        for i in range(0, self.nx):
+            self.psi[len(self.psi)-i] = self.psi[i]
+
 
         output = self.p.Particle(e0, self.psi)
 
